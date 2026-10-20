@@ -1,14 +1,117 @@
-[gspread_service_account]
-{
-  "type": "service_account",
-  "project_id": "question-follow",
-  "private_key_id": "41b73b791e561b3e6fdee07fd35b52e4fcbf4810",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDTEAf2jqUk1tSZ\n1hLGX+Jq9eUOsNuc0SLUd5OLAQHJRVcmob8yiMbm1ayx7wCAYUXqpPBSPMJF9evx\nekdusHo2eCy9DJ+ll1VBGNyIxvFHhNqxL5F4Wy1r5f6wsPDOaGBSED7+NqNPZNQ0\nYtjaNK/pqHcUB4Jmvi5jFovKOl0n0dfHCWHqHum6m67igvgalfTKKaYWVA2uD2zO\nP8eT0spBscD9qKn6Cay5CGQNcUm2fXeYcNMUUZHsvJAuFXlEj+eMaadHrZDZBHuI\nIulSvA4BtGbvQ5JLCpg7XG88dj/40BzqYSfl0yTQmLhEgJdeIgEXLTh7o9T+eYgB\nQNjWdO7pAgMBAAECggEAALc7863ZqQWSfIARmbsfAzJYx8M5R2+dIN/T8AN9nE9g\nI4kmYxc8J3G/j23qUEUkLc7H4tuCZCbYmT3LKrit/WvMaQq3KuJXv2wEaXFVRaMR\nc8rfwSr7/TLvOW2sL2MCupyD/iw0wxLqNlBEgH7vvsjbuIVq/4qzERJ1QGcQxE8M\nCtn6NMF0MzXXl4/CpVPPoqbSUf8MBmnvRMuxnIVJJU0WpNe4mcGn7vnbA+Luqxvi\nXH7gLYERYTUcdL+SwIP1+6+6jqEOsFB/SpFTHo+f5a+c1VwmprBbRRt2st9u6ESa\n0Tlx2rJ260kOyBgPIFWJXV1SBp9YBMTjDrMIouhu4QKBgQDs//UdnxBtUs8VfwsD\n8EeXGmWN56UjnOyrJhZmG7bT7wYHzXNHew+8tw80CKlJY0EqgIG2356nis73j07P\n6lhfqsjZgO+SsR13lbyJDtlpS6HAHm4zUoJ6XrXbpGBReGDvBqnKvBw12MFzEr0H\n4hPPedkUk+9gNthrqgEUTPCAUQKBgQDj+8D6mAvx/lsUv3/HJE78HBcPdx13ylfR\nzjdPXk+apnyPg0wzAf4Jxb5z/Mdcts98K4fRwvVH8Q6GEHzxPcBQtebJVScFgKtI\n+8Tmlom161W5kKKtMYouB5OBpAc1+RPL4/2JWJLN2jURwxTM8aUlWJR7gxFOWbxh\nEJfJNjc3GQKBgFVZ8LqUOGRGuFFziVIHzKB8Xyp1zCFBOHKCqvpm7Lbyk+dndCbA\nCPDbtFv26pCFcEiQMyba7dZExTieobF7IgyCAwdhyeW4Z3ZTtKxfbqjfFgeMbf+J\nrXfIeBH75rwwcChk6+0ZRceWokSA8RbPsna72RPyGvk5h0Nu3CildM+hAoGBAJ/d\n9eDDpfy3pB7UekGm0EwxVmpd2Kgbl6FjvZ1GQQPtIwNvyosqJn2r0HV9GD+HYc9s\npv0MfPtJqimQfkycRLNUGtWrhIVzSKkRA22+uip7L83EAo74YjEM1v7disDqPFuJ\nMEyTc74t+XDPH1LnUCr0BorlycjrXBGklQtfnTBhAoGBALUlWvPhdMOeJ6EUvxzr\n9isrAJDFMTFSND0cTHxzT7OXoft2R/BdNJvnRveYdqkn9njgMHzWw3zf19z7vojx\n5YR3sO8FEhdzd4osYjpBmGu6dzA75QH+JSJcrv4S3RntLn/Rd7wAZRSeSl4EVqJh\npatVRUhIMeVFHG15LIvna2Mk\n-----END PRIVATE KEY-----\n",
-  "client_email": "question-follow@question-follow.iam.gserviceaccount.com",
-  "client_id": "116952924954061923842",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/question-follow%40question-follow.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
+import streamlit as st
+import gspread
+from google.oauth2.service_account import Credentials
+
+# ==========================================
+# 1. 設定・スプレッドシート接続
+# ==========================================
+# StreamlitのSecretsから認証情報を安全に読み込みます
+@st.cache_resource
+def init_sheets():
+    # Secretsから合鍵データを取得
+    creds_dict = dict(st.secrets["gspread_service_account"])
+    SCOPE = ["https://googleapis.com", "https://googleapis.com"]
+    CREDS = Credentials.from_service_account_info(creds_dict, scopes=SCOPE)
+    client = gspread.authorize(CREDS)
+
+    # ------------------------------------------
+    # 【最重要】ご自身のスプレッドシートIDを設定してください
+    # ------------------------------------------
+    INPUT_FILE_ID = '17r20Mrovxy1hLx1taLhHsRZzGKvUf_oZEvI1Z-Vnix0' 
+    OUTPUT_FILE_ID = '1a0v3VCqkpXRtq6gMMfIoQIkUxckxa5Y-wJ0kKcYo3m4'
+
+    return {
+        "console": client.open_by_key(INPUT_FILE_ID).worksheet("コンソール"),
+        "data": client.open_by_key(INPUT_FILE_ID).worksheet("問題データ"),
+        "output": client.open_by_key(OUTPUT_FILE_ID).worksheet("問題フォロー出力先")
+    }
+
+# スプレッドシートの初期化
+try:
+    sheets = init_sheets()
+except Exception as e:
+    st.error(f"スプレッドシートの接続に失敗しました。Secretsの設定やスプレッドシートの共有設定を確認してください。\nエラー詳細: {e}")
+    st.stop()
+
+# ==========================================
+# 2. アプリの初期状態（セッション）管理
+# ==========================================
+if "current_line" not in st.session_state:
+    try:
+        val_f1 = sheets["console"].acell("F1").value
+        st.session_state.current_line = int(val_f1) if val_f1 else 1
+    except:
+        st.session_state.current_line = 1
+
+# ==========================================
+# 3. コアロジック（GASのmoveLine相当）
+# ==========================================
+def move_line(direction):
+    new_line = st.session_state.current_line + direction
+    if new_line < 1:
+        new_line = 1
+        
+    st.session_state.current_line = new_line
+    
+    # 1. スプレッドシートのカウンター(F1)を更新
+    sheets["console"].update_acell("F1", new_line)
+    
+    # 2. 問題データから2行×3列を一発で取得 (A列~C列)
+    range_str = f"A{new_line}:C{new_line + 1}"
+    data_matrix = sheets["data"].get(range_str)
+    
+    # データが足りない場合のプレースホルダー処理
+    while len(data_matrix) < 2:
+        data_matrix.append(["", "", ""])
+    for i in range(2):
+        while len(data_matrix[i]) < 3:
+            data_matrix[i].append("")
+
+    val_a1, val_b1, val_c1 = data_matrix[0][0], data_matrix[0][1], data_matrix[0][2]
+    val_a2 = data_matrix[1][0]
+    
+    # 3. 自分のコンソールシートのA1:C1に書き込み
+    sheets["console"].update(range_str="A1:C1", values=[[val_a1, val_b1, val_c1]])
+    
+    # 4. 別ファイル（問題フォロー出力先）に一括書き込み (batch_updateで高速化)
+    body = {
+        'valueInputOption': 'USER_ENTERED',
+        'data': [
+            {'range': 'B1', 'values': [[val_a1]]},
+            {'range': 'A2', 'values': [[val_b1]]},
+            {'range': 'A3', 'values': [[val_c1]]},
+            {'range': 'B4', 'values': [[val_a2]]}
+        ]
+    }
+    sheets["output"].spreadsheet.batch_update(body)
+
+# ==========================================
+# 4. 画面レイアウト（UI）の構築
+# ==========================================
+st.title("問題フォロー 操作コンソール")
+
+# 現在の状況を表示
+st.metric(label="現在の行（問題番号など）", value=st.session_state.current_line)
+
+# ボタンの配置（横並び）
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("⬅️ 前の問題へ", use_container_width=True):
+        move_line(-1)
+        st.rerun()
+
+with col2:
+    if st.button("次の問題へ ➡️", use_container_width=True):
+        move_line(1)
+        st.rerun()
+
+# 現在の選択データを表示（確認用）
+st.subheader("書き込みデータ確認")
+try:
+    current_display = sheets["console"].get("A1:C1")
+    if current_display:
+        st.write(f"**A1 (問題内容など):** {current_display[0][0]}")
+        st.write(f"**B1:** {current_display[0][1]}")
+        st.write(f"**C1:** {current_display[0][2]}")
+except Exception as e:
+    st.info("データの読み込み中、またはデータが空です。")
