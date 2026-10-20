@@ -9,13 +9,12 @@ URL_BASE = "https://www." + "googleapis.com" + "/auth/"
 FINAL_SCOPE = [URL_BASE + "spreadsheets", URL_BASE + "drive"]
 
 def init_sheets():
-    # すでに成功実績のある、Secrets（詳細設定）側の鍵データを安全に読み込みます
     try:
         creds_dict = dict(st.secrets["gspread_service_account"])
         CREDS = Credentials.from_service_account_info(creds_dict, scopes=FINAL_SCOPE)
         client = gspread.authorize(CREDS)
     except Exception as e:
-        st.error(f"【エラー場所：Googleログイン段階】\n詳細設定（Secrets）の鍵データが正しく読み込めません。\n詳細: {e}")
+        st.error(f"【エラー場所：Googleログイン段階】\n詳細: {e}")
         st.stop()
 
     INPUT_FILE_ID = '17r20Mrovxy1hLx1taLhHsRZzGKvUf_oZEvI1Z-Vnix0'.strip() 
@@ -69,11 +68,16 @@ def move_line(direction):
         while len(data_matrix[i]) < 3:
             data_matrix[i].append("")
 
-    # 【完全修正】2次元配列から1つの文字データをピンポイントで正しく指定して抽出（システム変換の影響を受けないインデックス指定）
-    val_a1 = data_matrix[0][0]  # 現在の行のA列
-    val_b1 = data_matrix[0][1]  # 現在の行のB列
-    val_c1 = data_matrix[0][2]  # 現在の行のC列
-    val_a2 = data_matrix[1][0]  # 次の行のA列
+    # 【バグ対策修正：安全なデータ分解抽出】
+    # 1行目と2行目を安全に分離
+    first_row = data_matrix.pop(0)
+    second_row = data_matrix.pop(0)
+    
+    # 各セルから文字データを確実に1つずつ取り出します
+    val_a1 = first_row.pop(0)   # 現在の行のA列
+    val_b1 = first_row.pop(0)   # 現在の行のB列
+    val_c1 = first_row.pop(0)   # 現在の行のC列
+    val_a2 = second_row.pop(0)  # 次の行のA列
     
     # 3. 自分のコンソールシートのA1:C1に一括書き込み
     sheets["console"].update(range_name="A1:C1", values=[[val_a1, val_b1, val_c1]])
@@ -110,8 +114,9 @@ st.subheader("書き込みデータ確認")
 try:
     current_display = sheets["console"].get("A1:C1")
     if current_display and len(current_display) > 0:
-        st.write(f"**A1 (問題内容など):** {current_display[0][0] if len(current_display[0]) > 0 else ''}")
-        st.write(f"**B1:** {current_display[0][1] if len(current_display[0]) > 1 else ''}")
-        st.write(f"**C1:** {current_display[0][2] if len(current_display[0]) > 2 else ''}")
+        display_row = current_display[0]
+        st.write(f"**A1 (問題内容など):** {display_row[0] if len(display_row) > 0 else ''}")
+        st.write(f"**B1:** {display_row[1] if len(display_row) > 1 else ''}")
+        st.write(f"**C1:** {display_row[2] if len(display_row) > 2 else ''}")
 except Exception as e:
     st.info("データの読み込み中、またはデータが空です。")
