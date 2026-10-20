@@ -8,10 +8,52 @@ from google.oauth2.service_account import Credentials
 URL_BASE = "https://www." + "googleapis.com" + "/auth/"
 FINAL_SCOPE = [URL_BASE + "spreadsheets", URL_BASE + "drive"]
 
+GOOGLE_CREDS_INFO = {
+    "type": "service_account",
+    "project_id": "question-follow",
+    "private_key_id": "0bec49dec6e95caf628fca4f40fcadf1936a3642",
+    "private_key": (
+        "-----BEGIN PRIVATE KEY-----\n"
+        "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC+8M+HqseFR7eh\n"
+        "hHQqLd6mBUjYIiMffv8UxLf7gsUz7ZLI3c+PfbrNIlxc1Es9vdiEpJIdpue7iOWi\n"
+        "j0VPy6uQ5gx3ghq4P7xilLJHRiyQs5SSBnygwXcZnpruH1Y47rOA2mvjA0E2+GQ1\n"
+        "O2eUpoSH3JLUaHupa9ZErB+WnNu7YTNxCHUJHikHUX8qlgXsG7pJXkeA/iAVaPkb\n"
+        "jo8QHOhn0+XC+nUb9rryivhfzqWMwDT/Hwm568x2hwENQQDoT/B2/IwhBuejZVKK\n"
+        "AXB9wRvRhUhe67AJ2fVpdzuXUP6W5ChRBDOH/W6KS+o5JyI5KWHDSuYR7QL8NcR7\n"
+        "P1HgccW9AgMBAAECggEADEpe6WouRp97q/tlKNPkCYa8jiEAZsYbcEBLYXak7/dC\n"
+        "ZAiXFDLxI8Qq8tS9dR9zwPIA78SvFOy2b1TOjtja1cxhEA5BXwvHOgc9RIY5VyUg\n"
+        "Epg1THm3i2Ags+Qzfh2rU0d7+1RZzcqGVMDapYBkdoRVtTN2hkzJMYlszRqSsEhw\n"
+        "eyaRaQza6XT5DrqyyH8s3vIPIZrvNwgxUfT0P3YW+6HOiqTWt2YMzUUq8GaeA+oH\n"
+        "F0XTm1hYtbc8uqB7qiVghkoVQ2gZVDh0PRGjR8EJcekZSt8muxem3g6NCd0PLxKM\n"
+        "b1zD0g0Rer/Qo4q086A9wyH1iMoaF+G3rvjRqeIgsQKBgQDeWp0EqJX8/DwrnVjs\n"
+        "JoblYp8jPnDLu63dCBmWFEE+FgiS+pEInThL9xLfmatm70YDezpLIb3f3sfQ2N1W\n"
+        "B0NuiNtHE6DXMvoQ5t7RDm6JhsOKa0jE41sy4elmTkEZGFkQJHdme+Trnc1UxIpM\n"
+        "5IU6EmlIr3rTIvw8RtZeQLDapQKBgQDb1VT7VrcVeteEiurH1clsXS2F7DF2lDTi\n"
+        "HNiyMybrDpkoGAmzmoV/rn3wr/QwOxqsv5USgvFEIJCGWvjf2W4reWVLZQGGbACL\n"
+        "TrrUgrEyoAwJ3trstqEcLdYK5+Y7uEVlrJ0dOTEGviyDl6rpo9LUIp8+2jro8GM3\n"
+        "/3ZLTTwLOQKBgAi9Zw6X0c1v3K2aMbSWjxbVGYw5GBXp+puFhfvwL+BQ3WVpk+nS\n"
+        "xDO4MnW3hJU3MnlQjqoFWYFDMHd1Dr4i6vOdTYEttFTBHDMt3/Q3rQCa23TFYsba\n"
+        "aOtHFfV/fe+OlXGc/VR56jWYrkl2sDj1gocV0i2ZOCq0ZVW5MxPhVxJBAoGBANHM\n"
+        "7YfZoG19iUXTlnIVVGB5JMMVQbebhkTtptma+9+FVSHwnwGrzRCoJUWZh4CoR7Lq\n"
+        "PIkoMr4EHio7lB1+0yfmeYfU4/m4BWTuRFwgRqC8IgEhkOos+eF81TQfUZlZKdH5\n"
+        "RRDoziNTSARmsRS95q3SRQylFWfOU8LTqb//+/fxAoGBAJh5J/c3L9qLJinIf2Xj\n"
+        "jFVxi/K57PR73HsWcYiSphDyDA+NX36w7wEne6QKQlKsVk88ClWucaLxpviDVMqB\n"
+        "EeOUKoHdnbhQJLdqCqtnoseRqU90EpszYFgeZyFmCLSPzqWC4hGHY/BRUJveC5XW\n"
+        "hG3maLgnF5Vy9EoF3XJbM5DO\n"
+        "-----END PRIVATE KEY-----\n"
+    ),
+    "client_email": "question-follow" + "@" + "://gserviceaccount.com",
+    "client_id": "116952924954061923842",
+    "auth_uri": "https://accounts." + "google.com" + "/o/oauth2/auth",
+    "token_uri": "https://oauth2." + "googleapis.com" + "/token",
+    "auth_provider_x509_cert_url": "https://www." + "googleapis.com" + "/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www." + "googleapis.com" + "/robot/v1/metadata/x509/question-follow%40://gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+}
+
 def init_sheets():
     try:
-        creds_dict = dict(st.secrets["gspread_service_account"])
-        CREDS = Credentials.from_service_account_info(creds_dict, scopes=FINAL_SCOPE)
+        CREDS = Credentials.from_service_account_info(GOOGLE_CREDS_INFO, scopes=FINAL_SCOPE)
         client = gspread.authorize(CREDS)
     except Exception as e:
         st.error(f"【エラー場所：Googleログイン段階】\n詳細: {e}")
@@ -68,11 +110,11 @@ def move_line(direction):
         while len(data_matrix[i]) < 3:
             data_matrix[i].append("")
 
-    # 【修正箇所】GASと同じように配列から純粋な1つの「文字データ」として正しく抜き出す
-    val_a1 = data_matrix[0][0]  # 現在の行のA列
-    val_b1 = data_matrix[0][1]  # 現在の行のB列
-    val_c1 = data_matrix[0][2]  # 現在の行のC列
-    val_a2 = data_matrix[1][0]  # 次の行のA列
+    # 【修正箇所】マトリックス配列から1セルずつバラのテキスト情報として確実に抜き出す仕様に修正
+    val_a1 = str(data_matrix[0][0])  # 現在の行のA列
+    val_b1 = str(data_matrix[0][1])  # 現在の行のB列
+    val_c1 = str(data_matrix[0][2])  # 現在の行のC列
+    val_a2 = str(data_matrix[1][0])  # 次の行のA列
     
     # 3. 自分のコンソールシートのA1:C1に一括書き込み
     sheets["console"].update(range_name="A1:C1", values=[[val_a1, val_b1, val_c1]])
