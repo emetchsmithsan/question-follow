@@ -6,7 +6,7 @@ from google.oauth2.service_account import Credentials
 # 1. 設定・スプレッドシート接続
 # ==========================================
 # 正しいGoogle APIのSCOPEを設定（スプレッドシートとドライブへのアクセス権限）
-SCOPE = ["https://googleapis.com", "https://googleapis.com"]
+SCOPE = ["https://googleapis.com/auth/drive", "https://googleapis.com/auth/drive"]
 
 @st.cache_resource
 def init_sheets():
