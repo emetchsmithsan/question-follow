@@ -5,17 +5,18 @@ from google.oauth2.service_account import Credentials
 # ==========================================
 # 1. 設定・スプレッドシート接続
 # ==========================================
-# StreamlitのSecretsから認証情報を安全に読み込みます
+# 正しいGoogle APIのSCOPEを設定（スプレッドシートとドライブへのアクセス権限）
+SCOPE = ["https://googleapis.com", "https://googleapis.com"]
+
 @st.cache_resource
 def init_sheets():
-    # Secretsから合鍵データを取得
+    # StreamlitのSecretsから認証情報を安全に読み込みます
     creds_dict = dict(st.secrets["gspread_service_account"])
-    SCOPE = ["https://googleapis.com", "https://googleapis.com"]
     CREDS = Credentials.from_service_account_info(creds_dict, scopes=SCOPE)
     client = gspread.authorize(CREDS)
 
     # ------------------------------------------
-    # 【最重要】ご自身のスプレッドシートIDを設定してください
+    # ご自身のスプレッドシートIDを設定
     # ------------------------------------------
     INPUT_FILE_ID = '17r20Mrovxy1hLx1taLhHsRZzGKvUf_oZEvI1Z-Vnix0' 
     OUTPUT_FILE_ID = '1a0v3VCqkpXRtq6gMMfIoQIkUxckxa5Y-wJ0kKcYo3m4'
@@ -109,9 +110,9 @@ with col2:
 st.subheader("書き込みデータ確認")
 try:
     current_display = sheets["console"].get("A1:C1")
-    if current_display:
-        st.write(f"**A1 (問題内容など):** {current_display[0][0]}")
-        st.write(f"**B1:** {current_display[0][1]}")
-        st.write(f"**C1:** {current_display[0][2]}")
+    if current_display and len(current_display) > 0:
+        st.write(f"**A1 (問題内容など):** {current_display[0][0] if len(current_display[0]) > 0 else ''}")
+        st.write(f"**B1:** {current_display[0][1] if len(current_display[0]) > 1 else ''}")
+        st.write(f"**C1:** {current_display[0][2] if len(current_display[0]) > 2 else ''}")
 except Exception as e:
     st.info("データの読み込み中、またはデータが空です。")
